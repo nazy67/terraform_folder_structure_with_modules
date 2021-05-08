@@ -1,6 +1,6 @@
 ## Environment separation in Terraform with modules.
 
-In terraform_modules_folder_structure repository we will have an example of how we can separate environments with  `folder structure` and the `wrapper`, which we can have it on the top of the folder structure. Since we will have our backend files remotely in S3 bucket we also have remote_s3_backend folder, where we configured s3 bucket for backend files and dynamo_db for locking. Before we provision any of our root modules, we have to make sure that our S3 bucket exist, so provision S3 bucket first.
+In terraform_modules_folder_structure repository we will have an example of how we can separate environments with `folder structure`.  Since we will have our backend files remotely in S3 bucket we also have remote_s3_backend folder, where we configured s3 bucket for remote_state files and dynamo_db for locking. Before we provision any of our resources, we have to make sure that our S3 bucket exist, so provision S3 bucket first.
 
 ## Prerequisites
 
@@ -18,21 +18,21 @@ In terraform_modules_folder_structure repository we will have an example of how 
 
 When we separate our environments with `folder structure` we have different directories for different environments, which gives us ability to provision the same infrastructure in different environment without any interference between them (when you have your state file locally to recreate the same infra in different envirnment you have to destroy the first one). Lets say we want to create the same infra in `dev` as we have in `qa` calling the same `child module`,  storing backend files separately in S3 bucket makes it possible. On AWS console it will look like this:
 
-<img src="aws_img/terraform-nazy_state.png" alt="aws" width="500" height="100">
+<img src="aws_img/terraform-nazy_state.png" alt="aws" width="700" height="200">
 
 In `modules` folder we have rds && webserver (child) modules and both `dev`  and `qa` folders contains rds && webserver (root) modules. `child modules` have configuration files of resources that later we call from  a `root module`. Also in `child module` we don't have any `.terraform` folders (as we don't initialize this folder as a working directory). Basically we use `child module` as ready template that we can later reused as a base when we create resources in different environments. 
 
 Content of S3 bucket folder:
 
-<img src="aws_img/content_of_state.png" alt="aws" width="350" height="100">
+<img src="aws_img/content_of_state.png" alt="aws" width="600" height="200">
 
 Content of `dev` environment folder:
 
-<img src="aws_img/content_of_dev.png" alt="aws" width="350" height="100">
+<img src="aws_img/content_of_dev.png" alt="aws" width="600" height="200">
 
 Content of `qa` environment folder:
 
-<img src="aws_img/content_of_qa.png" alt="aws" width="350" height="100">
+<img src="aws_img/content_of_qa.png" alt="aws" width="600" height="200">
 
 In our example we created `rds` and refered to it’s `remote_state` file from our `webserver` root module but, terraform won’t be able to find it, because in webserver `child  module` we have already remote_state file, and our code will break. For that reason we used map variables defined in `webserver` child module and just after that we should be able to pass our variables the `webserver` root module. Let's see how it looks, defined `variables` in child module and passed the values in root module.
 
@@ -139,4 +139,4 @@ data "template_file" "user_data"  {
 
 ## Notes
 
-Whenever we do changes on backend.tf of the location for remote_state file we need to run terraform init, to initialize the new location of the s3 bucket.
+Whenever we do changes on backend.tf on the location for remote_state file we need to run terraform init, to initialize the new location for remote_state file in s3 bucket.
