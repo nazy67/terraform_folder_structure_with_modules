@@ -1,18 +1,18 @@
 resource "aws_lb" "webserver_alb" {
-  name        = "${local.prefix}-alb"
+  name               = "${local.prefix}-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.web_alb_sg.id]
-  subnets            = data.aws_subnet_ids.default.ids  
+  subnets            = data.aws_subnet_ids.default.ids
   tags = {
-    Name  = "${local.prefix}-web_alb"
+    Name = "${local.prefix}-web_alb"
   }
 }
 resource "aws_lb_target_group" "web_tg" {
-  name     = "${local.prefix}-alb-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = data.aws_vpc.default.id
+  name                          = "${local.prefix}-alb-tg"
+  port                          = 80
+  protocol                      = "HTTP"
+  vpc_id                        = data.aws_vpc.default.id
   load_balancing_algorithm_type = "least_outstanding_requests"
   health_check {
     path    = "/"
@@ -20,11 +20,11 @@ resource "aws_lb_target_group" "web_tg" {
     matcher = "200"
   }
 }
-  
+
 resource "aws_lb_listener" "http_listener" {
-  depends_on = [  ]
+  depends_on        = []
   load_balancer_arn = aws_lb.webserver_alb.arn
-  port              = "80" 
+  port              = "80"
   protocol          = "HTTP"
   default_action {
     type             = "forward"
